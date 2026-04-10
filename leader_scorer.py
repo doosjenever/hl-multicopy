@@ -43,8 +43,10 @@ MIN_30D_ROE = 15.0               # 15% this month
 # Deep scan filters
 MAX_DRAWDOWN = 75.0              # 75% max all-time DD (bot has own DD protection)
 MIN_TRADE_DAYS = 30              # 30 days minimum active
-MAX_LAST_TRADE_DAYS = 2          # Must have traded in last 2 days
+MAX_LAST_TRADE_DAYS = 2          # Most recent voluntary trade must be < 2d ago
 MIN_CLOSED_TRADES = 20           # Minimum closed trades
+MIN_TRADES_LAST_7D = 5           # Must have at least 5 voluntary trades in last 7d
+MIN_ACTIVE_DAYS_LAST_14D = 3     # Must have traded on at least 3 distinct days in last 14d
 
 # Rate limiting
 API_DELAY_S = 1.0
@@ -277,10 +279,25 @@ def deep_scan_trader(client: httpx.Client, address: str) -> dict | None:
         if std_dev > 0:
             sharpe = (mean_ret / std_dev) * math.sqrt(len(returns))
 
+    # Activity windows: only count VOLUNTARY trades (exclude liquidations).
+    # A dead wallet can still have recent fills via liquidations or stale
+    # limit-order partial fills, which falsely passes a "last trade < 2d" check.
+    seven_days_ms = 7 * 86400 * 1000
+    fourteen_days_ms = 14 * 86400 * 1000
+    trades_last_7d = 0
+    active_day_buckets: set = set()
+
     for fill in fills:
         ts = fill.get("time", 0)
-        if ts > last_trade_ts:
+        direction = fill.get("dir", "")
+        is_voluntary = direction in ("Open Long", "Close Long", "Open Short", "Close Short")
+
+        if is_voluntary and ts > last_trade_ts:
             last_trade_ts = ts
+        if is_voluntary and ts >= now_ms - seven_days_ms:
+            trades_last_7d += 1
+        if is_voluntary and ts >= now_ms - fourteen_days_ms:
+            active_day_buckets.add(ts // (86400 * 1000))
 
         coin = fill.get("coin", "")
         if coin.startswith("@") or ":" in coin:
@@ -288,6 +305,7 @@ def deep_scan_trader(client: httpx.Client, address: str) -> dict | None:
         elif coin and coin != "USDC":
             crypto_coins.add(coin)
 
+    active_days_last_14d = len(active_day_buckets)
     last_trade_days = (now_ms - last_trade_ts) / (86400 * 1000) if last_trade_ts > 0 else 999
     closed_trades = true_wins + true_losses
     win_rate = (true_wins / closed_trades * 100) if closed_trades > 0 else 0
@@ -311,6 +329,8 @@ def deep_scan_trader(client: httpx.Client, address: str) -> dict | None:
         "max_dd_30d": max_dd_30d,
         "trade_days": trade_days,
         "last_trade_days": last_trade_days,
+        "trades_last_7d": trades_last_7d,
+        "active_days_last_14d": active_days_last_14d,
         "roe_day": roe_data.get("day", 0),
         "roe_week": roe_data.get("week", 0),
         "roe_month": roe_data.get("month", 0),
@@ -424,6 +444,10 @@ def main():
                 reasons.append(f"last_trade={scan['last_trade_days']:.0f}d ago")
             if scan["closed_trades"] < MIN_CLOSED_TRADES:
                 reasons.append(f"trades={scan['closed_trades']}")
+            if scan["trades_last_7d"] < MIN_TRADES_LAST_7D:
+                reasons.append(f"trades_7d={scan['trades_last_7d']}")
+            if scan["active_days_last_14d"] < MIN_ACTIVE_DAYS_LAST_14D:
+                reasons.append(f"active_days_14d={scan['active_days_last_14d']}")
 
             if reasons:
                 print(f"  [{i+1}/{scan_count}] {short_addr} — REJECTED: {', '.join(reasons)}")
@@ -453,6 +477,8 @@ def main():
                 "closed_trades": scan["closed_trades"],
                 "trade_days": int(scan["trade_days"]),
                 "last_trade_days": round(scan["last_trade_days"], 1),
+                "trades_last_7d": scan["trades_last_7d"],
+                "active_days_last_14d": scan["active_days_last_14d"],
                 "long_pct": round(scan["long_pct"], 1),
                 "is_hip3": scan["is_hip3"],
                 "hip3_coins": scan["hip3_coins"][:10],
@@ -510,6 +536,8 @@ def main():
                     "max_last_trade_days": MAX_LAST_TRADE_DAYS,
                     "min_trade_days": MIN_TRADE_DAYS,
                     "min_closed_trades": MIN_CLOSED_TRADES,
+                    "min_trades_last_7d": MIN_TRADES_LAST_7D,
+                    "min_active_days_last_14d": MIN_ACTIVE_DAYS_LAST_14D,
                 },
                 "stats": {
                     "total_leaderboard": len(rows),
