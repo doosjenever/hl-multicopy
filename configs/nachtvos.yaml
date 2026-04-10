@@ -1,0 +1,17 @@
+# Nachtvos — crypto, BTC/TAO/TRUMP, 30D=1250%, DD=27%
+# Score: top crypto | PNL: +$526K | WR: 82% | Balance: $582K
+
+leader:
+  name: "nachtvos"
+  target_wallet: "0x34abcfd624440f57e5ca958969799dc0a38e18b8"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"

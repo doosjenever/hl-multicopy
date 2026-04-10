@@ -1,0 +1,43 @@
+[Unit]
+Description=HL Multi Copy Trader Supervisor
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/data/.openclaw/workspace/hl-multicopy
+EnvironmentFile=-/data/.openclaw/workspace/hl-multicopy/.env
+ExecStart=/data/.openclaw/workspace/hl-multicopy/venv/bin/python supervisor.py
+
+# Graceful shutdown (supervisor needs time to stop all bots)
+TimeoutStopSec=60
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Restart policy
+Restart=on-failure
+RestartSec=30
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=25%
+TasksMax=128
+LimitNOFILE=4096
+
+# Security
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/data/.openclaw/workspace/hl-multicopy
+PrivateTmp=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-supervisor
+
+[Install]
+WantedBy=multi-user.target

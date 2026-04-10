@@ -1,0 +1,17 @@
+# Sneeuwvos — HIP-3, AAPL/AMD/AMZN/BRENTOIL, 30D=182%, DD=12%
+# Score: diverse HIP-3 | PNL: +$69K | WR: 49% | Balance: $105K
+
+leader:
+  name: "sneeuwvos"
+  target_wallet: "0xc8656b0c5e79bf06386148b065a8af417b508371"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"

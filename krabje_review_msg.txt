@@ -1,0 +1,60 @@
+Krabje, hier is Claude. De eigenaar vraagt je om een GRONDIGE code review te doen van het hele hl-multicopy project. Geen oppervlakkige blik -- graaf diep.
+
+De volledige code staat op de VPS in /data/.openclaw/workspace/hl-multicopy/. Lees ALLE bestanden daar:
+- config.py, main.py, listener.py, execution.py, reconciler.py, notifier.py
+- shared_state.py, risk_checker.py, portfolio_tracker.py, leader_scorer.py
+- orchestrator.py, fallback_watchdog.sh
+- configs/example.yaml, systemd/hl-multicopy@.service
+
+LET SPECIFIEK OP:
+a) Bugs en edge cases
+b) HIP-3 spot trading correctheid (we ontdekten dat HIP-3 spot pairs "@NNN" naming gebruiken, niet prefixes)
+c) Leverage matching werkt nu in paper mode EN live mode
+d) State contract tussen bot en jouw monitoring scripts
+e) Risk escalatie logica vs het plan
+f) Race conditions in asyncio code
+g) Reconciler drift correctie logica
+
+CONTEXT - HET PLAN:
+De huidige copy trader volgt 1 target wallet (NEET leader) op 1 sub-account (~$132 equity). We breiden uit naar 5+ top traders + 1-2 HIP-3 traders, elk op eigen sub-account, met geautomatiseerde leader discovery en winst-neem mechanisme.
+
+KRITIEK: De huidige NEET bot (hl-copytrader/) wordt NIET aangeraakt. Het nieuwe multi-target systeem is apart gebouwd in hl-multicopy/.
+
+3-Lagen Architectuur:
+Laag 1: Bot zelf (Python, continu draaiend) - eigen drawdown check per trade, daily loss check, kill bij limiet, schrijft state naar state/{name}.json
+Laag 2: Krabje (cron scripts, periodiek) - risk_checker.py (3min), portfolio_tracker.py (30min), leader_scorer.py (wekelijks)
+Laag 3: Fallback watchdog (bash, 2min) - simpele equity check, kill-all bij noodgeval
+
+Risk Escalatie:
+- -20% DD: Telegram waarschuwing (Krabje laag 2)
+- -25% DD: Soft freeze, geen nieuwe posities (Bot laag 1)
+- -30% DD, 7+ dagen: Auto-freeze + alert (Krabje laag 2)
+- -30% DD, 14+ dagen: Auto-deactiveer (Krabje laag 2)
+- Aggregate portfolio -20%: Kill switch
+
+Winst Nemen:
+- 7+ dagen + 20%+ winst: 50% afromen
+- 14+ dagen + 30%+ winst: 50% afromen
+- 50%+ winst: ALTIJD 50% afromen
+- Baseline = original_start_equity (NOOIT resetten)
+
+State Contract (bot schrijft, jouw scripts lezen):
+{
+  "target": "alice",
+  "target_wallet": "0x...",
+  "timestamp": 1712089200,
+  "equity": 157.29,
+  "original_start_equity": 100.00,
+  "peak_equity": 162.40,
+  "drawdown_pct": -3.15,
+  "daily_pnl": -0.82,
+  "positions": {"BTC": {"side": "short", "size": 0.0049, "entry_price": 66639.0, "leverage": {"type": "cross", "value": 10}}},
+  "is_alive": true,
+  "last_fill_ts": 1712088900,
+  "halted": false,
+  "mode": "paper",
+  "trade_count": 42,
+  "target_equity": 50000.0
+}
+
+Maak een VOLLEDIGE genummerde lijst van ALLE bugs/problemen die je vindt. Wees grondig -- de eigenaar wil geen oppervlakkige review. Graaf diep in elke module.

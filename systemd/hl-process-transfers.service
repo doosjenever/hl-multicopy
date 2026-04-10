@@ -1,0 +1,23 @@
+[Unit]
+Description=HL Multi Copy - Process Transfer Requests
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/data/.openclaw/workspace/hl-multicopy
+EnvironmentFile=-/data/.openclaw/workspace/hl-multicopy/.env
+ExecStart=/data/.openclaw/workspace/hl-multicopy/venv/bin/python orchestrator.py process-transfers
+
+# Security
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/data/.openclaw/workspace/hl-multicopy
+PrivateTmp=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-process-transfers

@@ -1,0 +1,17 @@
+# Stadsvos — crypto, BTC/FARTCOIN/STABLE, 30D=44%, DD=8%
+# Score: consistent | PNL: +$304K | WR: 100% | Balance: $454K
+
+leader:
+  name: "stadsvos"
+  target_wallet: "0x0aac6955688dc1cd3cafd52ebcade334fb1c9c3b"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"

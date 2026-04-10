@@ -1,0 +1,27 @@
+# Capital allocation — source of truth for hl-multicopy
+# Read by orchestrator.py and portfolio_tracker.py
+
+total_capital: 2000.0            # Total USD allocated to copy trading
+reserve_pct: 10.0                # Keep 10% in main wallet as reserve
+
+strategy: equal                  # equal | score_weighted | manual
+
+# Per-leader overrides (optional)
+leaders: {}
+
+# Constraints
+constraints:
+  max_leaders: 10
+  min_allocation_pct: 5.0        # Floor: min 5% per leader
+  max_allocation_pct: 30.0       # Ceiling: max 30% per leader
+  min_tenure_days: 7             # Min days before rotation eligible
+  switch_cost_pct: 0.5           # Don't rotate if fees > 0.5%
+
+# Profit-taking rules (portfolio_tracker.py)
+profit_taking:
+  enabled: true
+  rules:
+    - {min_days: 0, min_profit_pct: 50.0, skim_pct: 50.0}
+    - {min_days: 14, min_profit_pct: 30.0, skim_pct: 50.0}
+    - {min_days: 7, min_profit_pct: 20.0, skim_pct: 50.0}
+  cooldown_hours: 24

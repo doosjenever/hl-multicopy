@@ -1,0 +1,25 @@
+wing: hl_multicopy
+rooms:
+- name: configuration
+  description: Files from configs/
+  keywords:
+  - configuration
+  - configs
+- name: logs
+  description: Files from logs/
+  keywords:
+  - logs
+  - logs
+- name: state
+  description: Files from state/
+  keywords:
+  - state
+  - state
+- name: systemd
+  description: Files from systemd/
+  keywords:
+  - systemd
+  - systemd
+- name: general
+  description: Files that don't fit other rooms
+  keywords: []

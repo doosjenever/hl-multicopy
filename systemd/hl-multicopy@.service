@@ -1,0 +1,49 @@
+[Unit]
+Description=HL Multi Copy Trader - %i
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/data/.openclaw/workspace/hl-multicopy
+EnvironmentFile=-/data/.openclaw/workspace/hl-multicopy/.env
+ExecStart=/data/.openclaw/workspace/hl-multicopy/venv/bin/python main.py --config configs/%i.yaml
+
+# Graceful shutdown
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+SendSIGKILL=yes
+
+# Restart policy (supervisor also handles this)
+Restart=on-failure
+RestartSec=10
+
+# Resource limits
+MemoryMax=512M
+MemoryHigh=384M
+CPUQuota=50%
+TasksMax=64
+LimitNOFILE=4096
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/data/.openclaw/workspace/hl-multicopy/state
+ReadWritePaths=/data/.openclaw/workspace/hl-multicopy/logs
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hl-multicopy-%i
+
+[Install]
+WantedBy=multi-user.target

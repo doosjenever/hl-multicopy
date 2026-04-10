@@ -1,0 +1,31 @@
+# Example leader configuration for hl-multicopy
+# Copy this file and adjust for each leader:
+#   cp example.yaml alice.yaml
+
+leader:
+  name: "alice"                          # Human-readable name (used in logs, state files, notifications)
+  target_wallet: "0x1234567890abcdef..."  # Full wallet address to copy
+  sub_account: ""                         # Sub-account address (live mode only)
+  starting_equity: 200.0                  # Starting equity allocation (USD)
+  paper_mode: true                        # true = simulate, false = real orders
+
+  # Execution tuning
+  slippage_cap_pct: 0.5                   # Max slippage % vs target fill price
+  debounce_ms: 80                         # Batch partial fills window (ms)
+  reconciler_interval_s: 30               # Seconds between full state syncs
+
+  # Risk (Layer 1 — bot-level, real-time)
+  max_drawdown_pct: 25.0                  # Soft freeze: block new opens beyond this DD%
+  daily_loss_limit_pct: 10.0              # Block opens if daily loss exceeds this %
+
+# Global settings (can override defaults, most come from env vars)
+global:
+  log_level: "INFO"
+  # ws_url: "wss://api.hyperliquid.xyz/ws"
+  # api_url: "https://api.hyperliquid.xyz"
+
+# Environment variables needed:
+#   HL_PRIVATE_KEY       - Private key for live trading
+#   HL_WALLET_ADDRESS    - Master wallet address
+#   TELEGRAM_BOT_TOKEN   - Telegram bot token
+#   TELEGRAM_CHAT_ID     - Telegram chat ID

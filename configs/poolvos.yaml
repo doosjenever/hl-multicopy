@@ -1,0 +1,17 @@
+# Poolvos — HIP-3, BRENTOIL specialist, 30D=536%, DD=10%
+# Score: beste HIP-3 | PNL: +$893K | WR: 86% | Balance: $1.46M
+
+leader:
+  name: "poolvos"
+  target_wallet: "0x6b08bbb2daf57d390538d73542f50d5f735ca420"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"

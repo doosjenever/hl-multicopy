@@ -1,0 +1,17 @@
+# Vuurvos — crypto, BTC/ETH/HYPE, 30D=1247%, DD=46%
+# Score: explosief | PNL: +$156K | WR: 98% | Balance: $161K
+
+leader:
+  name: "vuurvos"
+  target_wallet: "0xba55fe992567bf23a61301c6cda2add81ad8c8e2"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"

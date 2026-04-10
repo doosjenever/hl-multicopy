@@ -1,0 +1,17 @@
+# Sluipvos — crypto, BTC/ETH/SOL/HYPE, 30D=91%, DD=5%
+# Score: laagste DD | PNL: +$124K | WR: 89% | Balance: $174K
+
+leader:
+  name: "sluipvos"
+  target_wallet: "0x0c2cb7193e1fa533c4a2b5ed45782962a0ac6c3f"
+  sub_account: ""
+  starting_equity: 200.0
+  paper_mode: true
+  slippage_cap_pct: 0.5
+  debounce_ms: 80
+  reconciler_interval_s: 30
+  max_drawdown_pct: 25.0
+  daily_loss_limit_pct: 10.0
+
+global:
+  log_level: "INFO"
